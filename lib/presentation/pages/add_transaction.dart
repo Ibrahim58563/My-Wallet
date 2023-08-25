@@ -68,7 +68,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final transactionBox = Hive.box<Transaction>('transactions');
                 const uuid = Uuid();
                 final uniqueId = uuid.v4();
@@ -87,17 +87,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ..storeName = _storeNameController.text
                     ..pictureUrl = _pictureUrlController.text
                     ..name = _nameController.text
+                    ..merchant = widget.merchant
+                    ..customer = widget.customer
                     ..price = double.parse(_priceController.text)
                     ..description = _descriptionController.text
-                    ..note = _noteController.text;
-
-                  if (widget.customer != null) {
-                    widget.customer!.addTransaction(newTransaction);
-                  } else if (widget.merchant != null) {
-                    widget.merchant!.addTransaction(newTransaction);
-                  }
+                    ..note = _noteController.text
+                    ..customerId = widget.customer?.id
+                    ..merchantId = widget.merchant?.id;
 
                   transactionBox.add(newTransaction);
+                  await transactionBox.compact();
 
                   Navigator.pop(context);
                 }

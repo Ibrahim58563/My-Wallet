@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-part 'store.g.dart';
+part 'generated_hive_model.dart/store.g.dart';
 
 @HiveType(typeId: 0)
 class Store extends HiveObject {

@@ -59,10 +59,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 final newCustomer = Customer()
                   ..id = uniqueId
                   ..name = _nameController.text
-                  ..address = _addressController.text
-                  ..email = _emailController.text
-                  ..phone = _phoneController.text
-                  ..pictureUrl = _pictureUrlController.text;
+                  ..phone = _phoneController.text;
 
                 customerBox.add(newCustomer);
 

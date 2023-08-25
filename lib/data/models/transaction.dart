@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:my_wallet/data/models/customer.dart';
 import 'package:my_wallet/data/models/merchant.dart';
-part 'transaction.g.dart';
+part 'generated_hive_model.dart/transaction.g.dart';
 
 @HiveType(typeId: 3)
 class Transaction extends HiveObject {
@@ -9,12 +9,12 @@ class Transaction extends HiveObject {
   late String id;
 
   @HiveField(1)
-  late String timestamp;
+  String timestamp = DateTime.now().toString();
 
   @HiveField(2)
   late double amount;
 
-  @HiveField(3) 
+  @HiveField(3)
   late String type; // "Sale" or "Purchase"
 
   @HiveField(4)
@@ -41,18 +41,8 @@ class Transaction extends HiveObject {
   @HiveField(11)
   late String note; // Additional notes for the transaction
 
-  // Transaction({
-  //   required this.id,
-  //   required this.timestamp,
-  //   required this.amount,
-  //   required this.type,
-  //   required this.storeName,
-  //   this.customer,
-  //   this.merchant,
-  //   required this.pictureUrl,
-  //   required this.name,
-  //   required this.price,
-  //   required this.description,
-  //   required this.note,
-  // });
+  @HiveField(12)
+  late String? customerId;
+  @HiveField(13)
+  late String? merchantId;
 }

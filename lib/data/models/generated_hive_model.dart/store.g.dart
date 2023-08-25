@@ -1,52 +1,43 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'merchant.dart';
+part of '../store.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MerchantAdapter extends TypeAdapter<Merchant> {
+class StoreAdapter extends TypeAdapter<Store> {
   @override
-  final int typeId = 1;
+  final int typeId = 0;
 
   @override
-  Merchant read(BinaryReader reader) {
+  Store read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Merchant()
+    return Store()
       ..id = fields[0] as String
       ..name = fields[1] as String
-      ..contactEmail = fields[2] as String
-      ..contactPhone = fields[3] as String
-      ..address = fields[4] as String
-      ..pictureUrl = fields[5] as String
-      ..stores = (fields[6] as List).cast<Store>()
-      ..transactions = (fields[7] as List).cast<Transaction>();
+      ..location = fields[2] as String
+      ..phoneNumber = fields[3] as String
+      ..field = fields[4] as String;
   }
 
   @override
-  void write(BinaryWriter writer, Merchant obj) {
+  void write(BinaryWriter writer, Store obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.contactEmail)
+      ..write(obj.location)
       ..writeByte(3)
-      ..write(obj.contactPhone)
+      ..write(obj.phoneNumber)
       ..writeByte(4)
-      ..write(obj.address)
-      ..writeByte(5)
-      ..write(obj.pictureUrl)
-      ..writeByte(6)
-      ..write(obj.stores)
-      ..writeByte(7)
-      ..write(obj.transactions);
+      ..write(obj.field);
   }
 
   @override
@@ -55,7 +46,7 @@ class MerchantAdapter extends TypeAdapter<Merchant> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MerchantAdapter &&
+      other is StoreAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

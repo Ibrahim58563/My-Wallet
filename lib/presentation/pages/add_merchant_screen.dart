@@ -83,16 +83,8 @@ class _AddMerchantScreenState extends State<AddMerchantScreen> {
                 final newMerchant = Merchant()
                   ..id = uniqueId
                   ..name = _nameController.text
-                  ..contactEmail = _emailController.text
                   ..contactPhone = _phoneController.text
-                  ..address = _addressController.text
-                  ..pictureUrl = _pictureUrlController.text
-                  ..stores.add(Store() // Create a new store
-                    ..id = uniqueId
-                    ..name = _storeNameController.text
-                    ..location = _storeLocationController.text
-                    ..phoneNumber = _storePhoneNumberController.text
-                    ..field = _fieldController.text);
+                  ..address = _addressController.text;
 
                 merchantBox.add(newMerchant);
 

@@ -1,31 +1,30 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'store.dart';
+part of '../merchant.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class StoreAdapter extends TypeAdapter<Store> {
+class MerchantAdapter extends TypeAdapter<Merchant> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
-  Store read(BinaryReader reader) {
+  Merchant read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Store()
+    return Merchant()
       ..id = fields[0] as String
       ..name = fields[1] as String
-      ..location = fields[2] as String
-      ..phoneNumber = fields[3] as String
-      ..field = fields[4] as String;
+      ..contactPhone = fields[2] as String
+      ..address = fields[3] as String;
   }
 
   @override
-  void write(BinaryWriter writer, Store obj) {
+  void write(BinaryWriter writer, Merchant obj) {
     writer
       ..writeByte(5)
       ..writeByte(0)
@@ -33,11 +32,9 @@ class StoreAdapter extends TypeAdapter<Store> {
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.location)
+      ..write(obj.contactPhone)
       ..writeByte(3)
-      ..write(obj.phoneNumber)
-      ..writeByte(4)
-      ..write(obj.field);
+      ..write(obj.address);
   }
 
   @override
@@ -46,7 +43,7 @@ class StoreAdapter extends TypeAdapter<Store> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is StoreAdapter &&
+      other is MerchantAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

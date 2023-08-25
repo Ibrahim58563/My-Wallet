@@ -1,10 +1,9 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_wallet/data/models/store.dart';
 import 'package:my_wallet/data/models/transaction.dart';
-part 'merchant.g.dart';
+part 'generated_hive_model.dart/merchant.g.dart';
 
 @HiveType(typeId: 1)
-class Merchant extends HiveObject {
+class Merchant {
   @HiveField(0)
   late String id;
 
@@ -12,28 +11,19 @@ class Merchant extends HiveObject {
   late String name;
 
   @HiveField(2)
-  late String contactEmail;
-
-  @HiveField(3)
   late String contactPhone;
 
-  @HiveField(4)
+  @HiveField(3)
   late String address; // New field for merchant address
 
-  @HiveField(5)
-  late String pictureUrl; // URL or path to the merchant's picture
+  // @HiveField(4)
+  // List<Transaction> transactions = [];
 
-  @HiveField(6)
-  List<Store> stores = []; // List of stores associated with the merchant
-
-  @HiveField(7)
-  List<Transaction> transactions = [];
-
-  double balance = 0;
-  double get totalBalance => transactions.fold<double>(
-      0, (sum, transaction) => sum + transaction.amount);
-  void addTransaction(Transaction transaction) {
-    transactions.add(transaction);
-    balance += transaction.amount; // Update total balance
-  }
+  // double balance = 0;
+  // double get totalBalance => transactions.fold<double>(
+  //     0, (sum, transaction) => sum + (transaction.amount * transaction.price));
+  // void addTransaction(Transaction transaction) {
+  //   transactions.add(transaction);
+  //   balance += (transaction.amount * transaction.price); // Update total balance
+  // }
 }
