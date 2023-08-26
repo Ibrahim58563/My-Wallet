@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_wallet/presentation/pages/add_customer_screen.dart';
 import 'package:my_wallet/presentation/pages/add_merchant_screen.dart';
 import 'package:my_wallet/presentation/pages/all_entites_screen.dart';
-import 'package:my_wallet/presentation/pages/customer_screen.dart';
+import 'package:my_wallet/presentation/pages/customer_list_screen.dart';
 import 'package:my_wallet/presentation/pages/merchant_screen.dart';
 
 // class HomeScreen extends StatelessWidget {
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddCustomerScreen(),
+                        builder: (context) => AddCustomerScreen(),
                       )),
                   label: const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddMerchantScreen(),
+                        builder: (context) => AddMerchantScreen(),
                       )),
                   label: const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -520,9 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(color: Colors.black),
                   ),
                 ),
-          !isExporter
-              ? const CustomerTransactionsScreen()
-              : const MerchantTransactionsScreen(),
+          !isExporter ? const CustomerListScreen() : MerchantListScreen(),
         ]),
       ),
     );

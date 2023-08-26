@@ -19,16 +19,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
-  Hive.init(appDocumentDirectory.path);
-  await Hive.initFlutter(appDocumentDirectory.path);
-  Hive.registerAdapter(CustomerAdapter());
-  Hive.registerAdapter(MerchantAdapter());
-  Hive.registerAdapter(StoreAdapter());
-  Hive.registerAdapter(TransactionAdapter());
-  await Hive.openBox<Customer>('customers');
-  await Hive.openBox<Merchant>('merchants');
-  await Hive.openBox<Store>('stores');
-  await Hive.openBox<Transaction>('transactions');
 
   runApp(const MyApp());
 }
@@ -49,20 +39,9 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
-        '/addCustomer': (context) => const AddCustomerScreen(),
-        '/addMerchant': (context) => const AddMerchantScreen(),
+        '/addCustomer': (context) => AddCustomerScreen(),
+        '/addMerchant': (context) => AddMerchantScreen(),
       },
     );
-  }
-
-  // In your main.dart
-  @override
-  void dispose() {
-    Hive.box<Customer>('customers').close();
-    Hive.box<Merchant>('merchants').close();
-    Hive.box<Store>('stores').close();
-    Hive.box<Transaction>('transactions').close();
-    Hive.close(); // Close the Hive instance
-    super.dispose();
   }
 }

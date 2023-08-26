@@ -1,16 +1,12 @@
-// screens/add_transaction_screen.dart
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:my_wallet/data/models/customer.dart';
-import 'package:my_wallet/data/models/merchant.dart';
-import 'package:my_wallet/data/models/transaction.dart';
-import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  final Customer? customer;
-  final Merchant? merchant;
+  final String customerId;
+  final String merchantId;
 
-  const AddTransactionScreen({super.key, this.customer, this.merchant});
+  const AddTransactionScreen(
+      {super.key, required this.customerId, required this.merchantId});
 
   @override
   _AddTransactionScreenState createState() => _AddTransactionScreenState();
@@ -18,6 +14,7 @@ class AddTransactionScreen extends StatefulWidget {
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _typeController = TextEditingController();
   final TextEditingController _storeNameController = TextEditingController();
   final TextEditingController _pictureUrlController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -28,78 +25,82 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Transaction'),
-      ),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(title: const Text('Add Transaction')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             TextField(
-              controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount'),
-              keyboardType: TextInputType.number,
-            ),
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: 'Name')),
             TextField(
-              controller: _storeNameController,
-              decoration: const InputDecoration(labelText: 'Store Name'),
-            ),
+                controller: _storeNameController,
+                decoration: const InputDecoration(labelText: 'Store Name')),
             TextField(
-              controller: _pictureUrlController,
-              decoration: const InputDecoration(labelText: 'Picture URL'),
-            ),
+                controller: _amountController,
+                decoration: const InputDecoration(labelText: 'Amount'),
+                keyboardType: TextInputType.number),
+            // TextField(
+            //     controller: _typeController,
+            //     decoration: const InputDecoration(labelText: 'Type')),
+
+            // TextField(
+            //     controller: _pictureUrlController,
+            //     decoration: const InputDecoration(labelText: 'Picture URL')),
+
             TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
-            ),
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Price'),
+                keyboardType: TextInputType.number),
             TextField(
-              controller: _priceController,
-              decoration: const InputDecoration(labelText: 'Price'),
-              keyboardType: TextInputType.number,
-            ),
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description')),
             TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
-            ),
-            TextField(
-              controller: _noteController,
-              decoration: const InputDecoration(labelText: 'Note'),
-            ),
-            const SizedBox(height: 20),
+                controller: _noteController,
+                decoration: const InputDecoration(labelText: 'Note')),
             ElevatedButton(
               onPressed: () async {
-                final transactionBox = Hive.box<Transaction>('transactions');
-                const uuid = Uuid();
-                final uniqueId = uuid.v4();
-
-                double? amountValue = double.tryParse(_amountController.text);
-                if (amountValue != null) {
-                  final currentTimestamp =
-                      DateTime.now().toString(); // Keep it as String
-
-                  // Successfully parsed the amount as a double
-                  final newTransaction = Transaction()
-                    ..id = uniqueId
-                    ..timestamp = currentTimestamp
-                    ..amount = amountValue
-                    ..type = 'Sale' // Or 'Purchase'
-                    ..storeName = _storeNameController.text
-                    ..pictureUrl = _pictureUrlController.text
-                    ..name = _nameController.text
-                    ..merchant = widget.merchant
-                    ..customer = widget.customer
-                    ..price = double.parse(_priceController.text)
-                    ..description = _descriptionController.text
-                    ..note = _noteController.text
-                    ..customerId = widget.customer?.id
-                    ..merchantId = widget.merchant?.id;
-
-                  transactionBox.add(newTransaction);
-                  await transactionBox.compact();
-
-                  Navigator.pop(context);
+                final transactionsCollection =
+                    FirebaseFirestore.instance.collection('transactions');
+                await transactionsCollection.add({
+                  'name': _nameController.text,
+                  'amount': double.parse(_amountController.text),
+                  'type': _typeController.text,
+                  'storeName': _storeNameController.text,
+                  'pictureUrl': _pictureUrlController.text,
+                  'price': double.parse(_priceController.text),
+                  'description': _descriptionController.text,
+                  'note': _noteController.text,
+                  'timestamp': FieldValue.serverTimestamp(),
+                  'customerId': widget.customerId,
+                  'merchantId': widget.merchantId,
+                  'totalBalance': double.parse(_amountController.text) *
+                      double.parse(_priceController.text)
+                });
+                if (widget.customerId.isNotEmpty) {
+                  // Update customer's balance in Firestore
+                  await FirebaseFirestore.instance
+                      .collection('customers')
+                      .doc(widget.customerId)
+                      .update({
+                    'balance': FieldValue.increment(
+                        double.parse(_amountController.text) *
+                            double.parse(_priceController.text)),
+                  });
+                } else if (widget.merchantId.isNotEmpty) {
+                  // Update merchant's balance in Firestore
+                  await FirebaseFirestore.instance
+                      .collection('merchants')
+                      .doc(widget.merchantId)
+                      .update({
+                    'balance': FieldValue.increment(
+                        double.parse(_amountController.text) *
+                            double.parse(_priceController.text)),
+                  });
                 }
+                Navigator.pop(context);
               },
               child: const Text('Add Transaction'),
             ),

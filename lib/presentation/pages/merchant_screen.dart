@@ -1,129 +1,69 @@
-// screens/merchant_transactions_screen.dart
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
-import 'package:my_wallet/data/models/merchant.dart';
-import 'package:my_wallet/data/models/transaction.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_wallet/presentation/pages/add_merchant_screen.dart';
 import 'package:my_wallet/presentation/pages/add_transaction.dart';
+import 'package:my_wallet/presentation/pages/merchant_details_screen.dart';
 
-class MerchantTransactionsScreen extends StatelessWidget {
-  const MerchantTransactionsScreen({super.key});
+class MerchantListScreen extends StatelessWidget {
+  const MerchantListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final merchantBox = Hive.box<Merchant>('merchants');
-    final transactionBox = Hive.box<Transaction>('transactions');
+    return
+        // Scaffold(
+        //   appBar: AppBar(title: const Text('Merchant List')),
+        //   body:
+        Expanded(
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('merchants').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+          final merchants = snapshot.data!.docs;
+          List<Widget> merchantWidgets = [];
+          for (var merchant in merchants) {
+            final merchantId = merchant.id;
+            final merchantName = merchant['name'];
+            final merchantContactPhone = merchant['contactPhone'];
+            final merchantAddress = merchant['address'];
+            final merchantBalance = merchant['balance'];
 
-    return Expanded(
-      child: ListView.builder(
-        itemCount: merchantBox.length,
-        itemBuilder: (context, index) {
-          final merchant = merchantBox.getAt(index);
-          final merchantTransactions = transactionBox.values
-              .where(
-                (transaction) => transaction.merchantId == merchant?.id,
-              )
-              .toList();
-          final totalBalance = merchantTransactions.fold<double>(
-              0,
-              (sum, transaction) =>
-                  sum + (transaction.amount * transaction.price));
-
-          return ListTile(
-            title: Text('Merchant: ${merchant?.name}'),
-            subtitle:
-                Text('Total Balance: \$${totalBalance.toStringAsFixed(2)}'),
-            trailing: const Icon(Icons.arrow_forward),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MerchantDetailScreen(
-                    merchant: merchant!,
-                    transactions: merchantTransactions,
-                  ),
+            merchantWidgets.add(
+              ListTile(
+                title: Text(merchantName),
+                subtitle: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(merchantContactPhone),
+                    Text(merchantAddress),
+                    Text(merchantBalance.toString()),
+                  ],
                 ),
-              );
-            },
+                onTap: () {
+                  // Navigate to merchant detail screen with merchantId
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MerchantDetailScreen(
+                                merchantId: merchantId,
+                              )));
+                },
+              ),
+            );
+          }
+          return ListView(
+            children: merchantWidgets,
           );
         },
       ),
-    );
-  }
-}
-
-class MerchantDetailScreen extends StatelessWidget {
-  final Merchant merchant;
-  final List<Transaction> transactions;
-
-  const MerchantDetailScreen(
-      {super.key, required this.merchant, required this.transactions});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(merchant.name),
-      ),
-      body: Column(
-        children: [
-          // Inside the MerchantDetailScreen
-
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: transactions.length,
-              itemBuilder: (context, index) {
-                final transaction = transactions[index];
-                return ListTile(
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Name: ${transactions[index].name}'),
-                      Text('Store: ${transactions[index].storeName}'),
-                      Text('Type: ${transactions[index].type}'),
-                      Text(
-                          'Time: ${DateFormat('HH:mm yyyy-MM-dd').format(DateTime.parse(transactions[index].timestamp))}'),
-                      Text(
-                          'Amount: ${transactions[index].amount.toStringAsFixed(2)}'),
-                      Text(
-                          'Price: ${((transactions[index].price) * (transactions[index].amount)).toStringAsFixed(2)}'),
-                      Text('Description: ${transactions[index].description}'),
-                      Text('Note: ${transactions[index].note}'),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          // Text('Total Balance: \$${merchant.totalBalance.toStringAsFixed(2)}'),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      AddTransactionScreen(merchant: merchant),
-                ),
-              );
-            },
-            child: const Text('Add Transaction'),
-          ),
-          // const Text('Stores:', style: TextStyle(fontWeight: FontWeight.bold)),
-          // ListView.builder(
-          //   shrinkWrap: true,
-          //   itemCount: merchant.stores.length,
-          //   itemBuilder: (context, index) {
-          //     final store = merchant.stores[index];
-          //     return ListTile(
-          //       title: Text(store.name),
-          //       subtitle: Text('Location: ${store.location}'),
-          //       // ... display other store information ...
-          //     );
-          //   },
-          // ),
-        ],
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     Navigator.push(context,
+      //         MaterialPageRoute(builder: (context) => AddMerchantScreen()));
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }
