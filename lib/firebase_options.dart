@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBmv9sbkrC8XcpkDa7ATiXRP2o_A7dSFhM',
-    appId: '1:733025330061:android:f9584661b185a51b8a53c4',
+    appId: '1:733025330061:android:e1c99ab0446d4c7b8a53c4',
     messagingSenderId: '733025330061',
     projectId: 'my-wallet-f2eb2',
     storageBucket: 'my-wallet-f2eb2.appspot.com',
@@ -63,21 +63,23 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBOyfGRLG7RL5bBG5xeJmIIhRfG2Y2BexA',
-    appId: '1:733025330061:ios:82abb461450ccfc48a53c4',
+    appId: '1:733025330061:ios:0bda917e9ab7a6fc8a53c4',
     messagingSenderId: '733025330061',
     projectId: 'my-wallet-f2eb2',
     storageBucket: 'my-wallet-f2eb2.appspot.com',
-    iosClientId: '733025330061-jggd6k8r3ajja4cnddu0jrefek2rakd0.apps.googleusercontent.com',
-    iosBundleId: 'com.example.myWallet',
+    androidClientId: '733025330061-i0um140taj6h85vp81p4sp1i691837je.apps.googleusercontent.com',
+    iosClientId: '733025330061-h6alf31s5emm60kciasp2mjnv4gii2rv.apps.googleusercontent.com',
+    iosBundleId: 'com.example.hafCalc',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBOyfGRLG7RL5bBG5xeJmIIhRfG2Y2BexA',
-    appId: '1:733025330061:ios:2c1e1e30d466b7688a53c4',
+    appId: '1:733025330061:ios:cca6cd9fec425ac08a53c4',
     messagingSenderId: '733025330061',
     projectId: 'my-wallet-f2eb2',
     storageBucket: 'my-wallet-f2eb2.appspot.com',
-    iosClientId: '733025330061-rjkkf9t4vc6qhpemtgpve0pobmck65i9.apps.googleusercontent.com',
-    iosBundleId: 'com.example.myWallet.RunnerTests',
+    androidClientId: '733025330061-i0um140taj6h85vp81p4sp1i691837je.apps.googleusercontent.com',
+    iosClientId: '733025330061-soig93pp7lqaj8lstucqog17s6tbova7.apps.googleusercontent.com',
+    iosBundleId: 'com.example.hafCalc.RunnerTests',
   );
 }

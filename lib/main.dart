@@ -1,47 +1,42 @@
-// main.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_wallet/data/models/customer.dart';
-import 'package:my_wallet/data/models/merchant.dart';
-import 'package:my_wallet/data/models/store.dart';
-import 'package:my_wallet/data/models/transaction.dart';
-import 'package:my_wallet/firebase_options.dart';
-import 'package:my_wallet/presentation/pages/add_customer_screen.dart';
-import 'package:my_wallet/presentation/pages/add_merchant_screen.dart';
-import 'package:my_wallet/presentation/pages/home_screen.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:haf_calc/cubits/auth/register/register_cubit.dart';
+import 'package:haf_calc/cubits/customer/customer_cubit.dart';
+import 'package:haf_calc/cubits/marchant/marchant_cubit.dart';
+import 'package:haf_calc/views/splash/splash.dart';
 
-void main() async {
+import 'cubits/auth/login/login_cubit.dart';
+import 'cubits/transactions/transactions_cubit.dart';
+
+
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  final appDocumentDirectory = await getApplicationDocumentsDirectory();
-
-  runApp(const MyApp());
+  await Firebase.initializeApp();
+  runApp(const HafCalc());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class HafCalc extends StatelessWidget {
+  const HafCalc({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Transaction Tracker',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/addCustomer': (context) => AddCustomerScreen(),
-        '/addMerchant': (context) => AddMerchantScreen(),
-      },
+    return   MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => RegisterCubit()),
+        BlocProvider(create: (context) => LoginCubit()),
+        BlocProvider(create: (context) => CustomerCubit()),
+        BlocProvider(create: (context) => MerchantCubit()),
+        BlocProvider(create: (context) => TransactionsCubit()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: "Cairo"
+        ),
+        home:  const SplashScreen(),
+        title: "اولاد الشيخ",
+      ),
     );
   }
 }
