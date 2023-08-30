@@ -83,4 +83,20 @@ class CustomerCubit extends Cubit<CustomerState> {
       emit(DeleteCustomerErrorState());
     }
   }
+
+  void searchCustomers(String searchQuery) async {
+    emit(CustomerSearchLoadingState());
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('customers')
+          .where('name', isGreaterThanOrEqualTo: searchQuery)
+          .where('name', isLessThanOrEqualTo: '$searchQuery\uf8ff')
+          .get();
+
+      emit(CustomerSearchSuccessState(querySnapshot.docs));
+    } catch (error) {
+      emit(CustomerSearchFailureState());
+    }
+  }
 }

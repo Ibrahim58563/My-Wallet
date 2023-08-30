@@ -374,7 +374,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       onChanged: (value) {
-                        print(value);
+                        if (!isExporter) {
+                          context.read<CustomerCubit>().searchCustomers(value);
+                        } else {
+                          context.read<MerchantCubit>().searchMerchants(value);
+                        }
                       },
                       onSaved: (String? value) {},
                       style: const TextStyle(color: Colors.black),
@@ -422,7 +426,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       onChanged: (value) {
-                        print(value);
+                        if (!isExporter) {
+                          context.read<CustomerCubit>().searchCustomers(value);
+                        } else {
+                          context.read<MerchantCubit>().searchMerchants(value);
+                        }
                       },
                       onSaved: (String? value) {},
                       style: const TextStyle(color: Colors.black),
@@ -432,7 +440,104 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? BlocBuilder<CustomerCubit, CustomerState>(
                     builder: (context, state) {
                       CustomerCubit cubit = CustomerCubit.get(context);
+                      if (state is CustomerSearchSuccessState) {
+                        if (state.searchResult.isEmpty) {
+                          return const Center(child: Text('لا توجد نتائج بحث'));
+                        } else {
+                          return Expanded(
+                            child: ListView.separated(
+                              itemCount: state.searchResult.length,
+                              separatorBuilder: (context, index) =>
+                                  const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Divider(),
+                              ),
+                              itemBuilder: (context, index) {
+                                final customerData =
+                                    state.searchResult[index].data();
+                                final customerName = customerData['name'];
+                                final customerBalance = customerData['balance'];
 
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            CustomerOperationsView(
+                                          userId: state.searchResult[index].id,
+                                          userName: customerName,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 12),
+                                    child: Row(
+                                      children: [
+                                        if (customerBalance < 0)
+                                          Text(
+                                            "${customerBalance * -1}",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                color: Color(0xFF2B3396)),
+                                          ),
+                                        if (customerBalance > 0)
+                                          Text(
+                                            "$customerBalance",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                color: Color(0xfffa417a)),
+                                          ),
+                                        if (customerBalance == 0)
+                                          Text(
+                                            "$customerBalance",
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          ),
+                                        const Spacer(),
+                                        InkWell(
+                                          onTap: () {
+                                            context
+                                                .read<CustomerCubit>()
+                                                .deleteCustomerByName(
+                                                    customerName);
+                                          },
+                                          child: const Icon(
+                                            Icons.remove_shopping_cart_rounded,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        Text(
+                                          customerName,
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        CircleAvatar(
+                                          backgroundColor:
+                                              const Color(0xFF2B3396),
+                                          child: Text(
+                                            customerName[0],
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      } else if (state is CustomerSearchLoadingState) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is CustomerSearchFailureState) {
+                        return const Center(
+                            child: Text('Failed to load search results'));
+                      }
                       return Expanded(
                         child: state is! getAllCustomersLoadingState
                             ? cubit.customers.isNotEmpty
@@ -445,78 +550,95 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Divider(),
                                     ),
                                     itemBuilder: (context, index) {
-                                      return InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CustomerOperationsView(
-                                                        userId: cubit.customers[
-                                                            index]['id'],
-                                                        userName: cubit
-                                                                    .customers[
-                                                                index]["data"]
-                                                            ['name'],
-                                                      )));
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 16.0, vertical: 12),
-                                          child: Row(
-                                            children: [
-                                              cubit.customers[index]["data"]
-                                                          ['balance'] <
-                                                      0
-                                                  ? Text(
-                                                      "${cubit.customers[index]["data"]['balance'] * -1}",
-                                                      style: const TextStyle(
-                                                          fontSize: 18,
-                                                          color: Color(
-                                                              0xFF2B3396)),
-                                                    )
-                                                  : Text(
-                                                      "${cubit.customers[index]["data"]['balance']}",
-                                                      style: const TextStyle(
-                                                          fontSize: 18,
-                                                          color: Color(
-                                                              0xfffa417a)),
-                                                    ),
-                                              const Spacer(),
-                                              InkWell(
-                                                onTap: () {
-                                                  context
-                                                      .read<CustomerCubit>()
-                                                      .deleteCustomerByName(
-                                                          "${cubit.customers[index]["data"]['name']}");
-                                                },
-                                                child: const Icon(
-                                                  Icons
-                                                      .remove_shopping_cart_rounded,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                              Text(
-                                                cubit.customers[index]["data"]
-                                                    ['name'],
-                                                style: const TextStyle(
-                                                    fontSize: 16),
-                                              ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              CircleAvatar(
-                                                backgroundColor:
-                                                    const Color(0xFF2B3396),
-                                                child: Text(
+                                      return Dismissible(
+                                        key: Key(cubit.customers[index]["data"]
+                                            ['name']),
+                                        onDismissed: (direction) {
+                                          context
+                                              .read<CustomerCubit>()
+                                              .deleteCustomerByName(
                                                   cubit.customers[index]["data"]
-                                                      ['name'][0],
-                                                  style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12),
+                                                      ['name']);
+                                        },
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CustomerOperationsView(
+                                                          userId:
+                                                              cubit.customers[
+                                                                  index]['id'],
+                                                          userName:
+                                                              cubit.customers[
+                                                                          index]
+                                                                      ["data"]
+                                                                  ['name'],
+                                                        )));
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16.0, vertical: 12),
+                                            child: Row(
+                                              children: [
+                                                cubit.customers[index]["data"]
+                                                            ['balance'] <
+                                                        0
+                                                    ? Text(
+                                                        "${cubit.customers[index]["data"]['balance'] * -1}",
+                                                        style: const TextStyle(
+                                                            fontSize: 18,
+                                                            color: Color(
+                                                                0xFF2B3396)),
+                                                      )
+                                                    : Text(
+                                                        "${cubit.customers[index]["data"]['balance']}",
+                                                        style: const TextStyle(
+                                                            fontSize: 18,
+                                                            color: Color(
+                                                                0xfffa417a)),
+                                                      ),
+                                                const Spacer(),
+                                                InkWell(
+                                                  onTap: () {
+                                                    context
+                                                        .read<CustomerCubit>()
+                                                        .deleteCustomerByName(
+                                                            "${cubit.customers[index]["data"]['name']}");
+                                                    setState(() {
+                                                      cubit.customers
+                                                          .removeAt(index);
+                                                    });
+                                                  },
+                                                  child: const Icon(
+                                                    Icons
+                                                        .remove_shopping_cart_rounded,
+                                                    color: Colors.red,
+                                                  ),
                                                 ),
-                                              )
-                                            ],
+                                                Text(
+                                                  cubit.customers[index]["data"]
+                                                      ['name'],
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                CircleAvatar(
+                                                  backgroundColor:
+                                                      const Color(0xFF2B3396),
+                                                  child: Text(
+                                                    cubit.customers[index]
+                                                        ["data"]['name'][0],
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       );
@@ -542,6 +664,105 @@ class _HomeScreenState extends State<HomeScreen> {
                 : BlocBuilder<MerchantCubit, MerchantState>(
                     builder: (context, state) {
                       MerchantCubit cubit = MerchantCubit.get(context);
+                      if (state is MerchantSearchLoadingState) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is MerchantSearchFailureState) {
+                        return const Center(
+                            child: Text('Failed to load search results'));
+                      } else if (state is MerchantSearchSuccessState) {
+                        if (state.searchResult.isEmpty) {
+                          return const Center(child: Text('لا توجد نتائج بحث'));
+                        } else {
+                          return Expanded(
+                            child: ListView.separated(
+                              itemCount: state.searchResult.length,
+                              separatorBuilder: (context, index) =>
+                                  const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Divider(),
+                              ),
+                              itemBuilder: (context, index) {
+                                final merchantData =
+                                    state.searchResult[index].data();
+                                final merchantName = merchantData['name'];
+                                final merchantBalance = merchantData['balance'];
+
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            MarchantOperationsView(
+                                          merchantId:
+                                              state.searchResult[index].id,
+                                          merchantName: merchantName,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 12),
+                                    child: Row(
+                                      children: [
+                                        if (merchantBalance < 0)
+                                          Text(
+                                            "${merchantBalance * -1}",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                color: Color(0xFF2B3396)),
+                                          ),
+                                        if (merchantBalance > 0)
+                                          Text(
+                                            "$merchantBalance",
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                color: Color(0xfffa417a)),
+                                          ),
+                                        if (merchantBalance == 0)
+                                          Text(
+                                            "$merchantBalance",
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          ),
+                                        const Spacer(),
+                                        InkWell(
+                                          onTap: () {
+                                            context
+                                                .read<MerchantCubit>()
+                                                .deleteMerchantByName(
+                                                    merchantName);
+                                          },
+                                          child: const Icon(
+                                            Icons.remove_shopping_cart_rounded,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        Text(
+                                          merchantName,
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        CircleAvatar(
+                                          backgroundColor:
+                                              const Color(0xFF2B3396),
+                                          child: Text(
+                                            merchantName[0],
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      }
                       return Expanded(
                         child: BlocBuilder<MerchantCubit, MerchantState>(
                           builder: (context, state) {
@@ -557,93 +778,112 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Divider(),
                                         ),
                                         itemBuilder: (context, index) {
-                                          return InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          MarchantOperationsView(
-                                                            merchantId: cubit
-                                                                    .merchants[
-                                                                index]['id'],
-                                                            merchantName:
-                                                                cubit.merchants[
-                                                                            index]
-                                                                        ["data"]
-                                                                    ['name'],
-                                                          )));
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 16.0,
-                                                      vertical: 12),
-                                              child: Row(
-                                                children: [
-                                                  cubit.merchants[index]["data"]
-                                                              ['balance'] <
-                                                          0
-                                                      ? Text(
-                                                          "${cubit.merchants[index]["data"]['balance'] * -1}",
-                                                          style: const TextStyle(
-                                                              fontSize: 18,
-                                                              color: Color(
-                                                                  0xFF2B3396)),
-                                                        )
-                                                      : cubit.merchants[index]
-                                                                      ["data"]
-                                                                  ['balance'] !=
-                                                              0
-                                                          ? Text(
-                                                              "${cubit.merchants[index]["data"]['balance']}",
-                                                              style: const TextStyle(
-                                                                  fontSize: 18,
-                                                                  color: Color(
-                                                                      0xfffa417a)),
-                                                            )
-                                                          : Text(
-                                                              "${cubit.merchants[index]["data"]['balance']}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          18),
-                                                            ),
-                                                  const Spacer(),
-                                                  InkWell(
-                                                    onTap: () {
-                                                      context
-                                                          .read<MerchantCubit>()
-                                                          .deleteMerchantByName(
-                                                              "${cubit.merchants[index]["data"]['name']}");
-                                                    },
-                                                    child: const Icon(
-                                                      Icons
-                                                          .remove_shopping_cart_rounded,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    cubit.merchants[index]
-                                                        ["data"]['name'],
-                                                    style: const TextStyle(
-                                                        fontSize: 16),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  CircleAvatar(
-                                                    backgroundColor:
-                                                        const Color(0xFF2B3396),
-                                                    child: Text(
+                                          return Dismissible(
+                                            key: Key(cubit.merchants[index]
+                                                ["data"]['name']),
+                                            onDismissed: (direction) {
+                                              context
+                                                  .read<MerchantCubit>()
+                                                  .deleteMerchantByName(
                                                       cubit.merchants[index]
-                                                          ["data"]['name'][0],
-                                                      style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 12),
+                                                          ["data"]['name']);
+                                              setState(() {
+                                                cubit.merchants.removeAt(index);
+                                              });
+                                            },
+                                            child: InkWell(
+                                              onTap: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            MarchantOperationsView(
+                                                              merchantId: cubit
+                                                                      .merchants[
+                                                                  index]['id'],
+                                                              merchantName:
+                                                                  cubit.merchants[
+                                                                              index]
+                                                                          ["data"]
+                                                                      ['name'],
+                                                            )));
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 16.0,
+                                                        vertical: 12),
+                                                child: Row(
+                                                  children: [
+                                                    cubit.merchants[index]
+                                                                    ["data"]
+                                                                ['balance'] <
+                                                            0
+                                                        ? Text(
+                                                            "${cubit.merchants[index]["data"]['balance'] * -1}",
+                                                            style: const TextStyle(
+                                                                fontSize: 18,
+                                                                color: Color(
+                                                                    0xFF2B3396)),
+                                                          )
+                                                        : cubit.merchants[index]
+                                                                        ["data"]
+                                                                    [
+                                                                    'balance'] !=
+                                                                0
+                                                            ? Text(
+                                                                "${cubit.merchants[index]["data"]['balance']}",
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    color: Color(
+                                                                        0xfffa417a)),
+                                                              )
+                                                            : Text(
+                                                                "${cubit.merchants[index]["data"]['balance']}",
+                                                                style:
+                                                                    const TextStyle(
+                                                                        fontSize:
+                                                                            18),
+                                                              ),
+                                                    const Spacer(),
+                                                    InkWell(
+                                                      onTap: () {
+                                                        context
+                                                            .read<
+                                                                MerchantCubit>()
+                                                            .deleteMerchantByName(
+                                                                "${cubit.merchants[index]["data"]['name']}");
+                                                      },
+                                                      child: const Icon(
+                                                        Icons
+                                                            .remove_shopping_cart_rounded,
+                                                        color: Colors.red,
+                                                      ),
                                                     ),
-                                                  )
-                                                ],
+                                                    Text(
+                                                      cubit.merchants[index]
+                                                          ["data"]['name'],
+                                                      style: const TextStyle(
+                                                          fontSize: 16),
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    CircleAvatar(
+                                                      backgroundColor:
+                                                          const Color(
+                                                              0xFF2B3396),
+                                                      child: Text(
+                                                        cubit.merchants[index]
+                                                            ["data"]['name'][0],
+                                                        style: const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           );

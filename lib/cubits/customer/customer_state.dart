@@ -25,3 +25,13 @@ class DeleteCustomerSuccessState extends CustomerState {}
 class DeleteCustomerLoadingState extends CustomerState {}
 
 class DeleteCustomerErrorState extends CustomerState {}
+
+class CustomerSearchSuccessState extends CustomerState {
+  final List<dynamic> searchResult;
+
+  CustomerSearchSuccessState(this.searchResult);
+}
+
+class CustomerSearchFailureState extends CustomerState {}
+
+class CustomerSearchLoadingState extends CustomerState {}

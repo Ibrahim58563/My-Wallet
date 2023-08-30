@@ -78,4 +78,20 @@ class MerchantCubit extends Cubit<MerchantState> {
       emit(DeleteMerchantErrorState());
     }
   }
+
+  void searchMerchants(String searchQuery) async {
+    emit(MerchantSearchLoadingState());
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('merchants')
+          .where('name', isGreaterThanOrEqualTo: searchQuery)
+          .where('name', isLessThanOrEqualTo: '$searchQuery\uf8ff')
+          .get();
+
+      emit(MerchantSearchSuccessState(querySnapshot.docs));
+    } catch (error) {
+      emit(MerchantSearchFailureState());
+    }
+  }
 }

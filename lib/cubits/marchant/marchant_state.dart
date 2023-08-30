@@ -25,3 +25,13 @@ class DeleteMerchantSuccessState extends MerchantState {}
 class DeleteMerchantLoadingState extends MerchantState {}
 
 class DeleteMerchantErrorState extends MerchantState {}
+
+class MerchantSearchSuccessState extends MerchantState {
+  final List<dynamic> searchResult;
+
+  MerchantSearchSuccessState(this.searchResult);
+}
+
+class MerchantSearchFailureState extends MerchantState {}
+
+class MerchantSearchLoadingState extends MerchantState {}
